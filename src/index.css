@@ -32,7 +32,7 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   background: var(--header-bg); color: #fff; padding: 18px 22px; border-radius: 0 0 14px 14px;
   margin: 0 -2px 8px; border-bottom: 3px solid var(--accent); }
 .hdr-brand { display: flex; align-items: center; gap: 14px; }
-.hdr-logo-img { height: 30px; display: block; }
+.hdr-logo-img { height: 30px; display: block; background: #fff; padding: 6px 11px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
 .hdr-divider { width: 1px; height: 30px; background: rgba(255,255,255,.18); }
 .hdr-title { font-size: 15px; font-weight: 700; letter-spacing: .3px; color: #fff; }
 .hdr-title .beta { font-size: 10px; font-weight: 700; color: #fff; background: var(--accent); padding: 2px 7px; border-radius: 5px; margin-left: 8px; vertical-align: middle; }
