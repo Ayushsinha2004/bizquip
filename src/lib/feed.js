@@ -2,6 +2,14 @@
 // "Get Many" rows from the `opportunity` table and returns them as a JSON array.
 // We fetch the rows once and aggregate the KPIs client-side (PostgREST/Supabase
 // returns rows, not SQL aggregates). The body is ignored by the native node.
+//
+// With USE_PROXY the browser POSTs to the same-origin path /feed; something
+// server-side forwards it to the HTTP webhook (this sidesteps mixed-content +
+// CORS). That proxy is provided by:
+//   - dev:  the Vite dev-server proxy in vite.config.js
+//   - prod: an Amplify rewrite rule  /feed -> VITE_BIZQUIP_WEBHOOK_URL (200 rewrite)
+// A production "Feed returned HTTP 404" almost always means that Amplify rewrite
+// is missing — the static host has no /feed route of its own.
 
 const USE_PROXY = import.meta.env.VITE_BIZQUIP_USE_PROXY === '1'
 const WEBHOOK_URL = import.meta.env.VITE_BIZQUIP_WEBHOOK_URL
@@ -20,7 +28,13 @@ export async function fetchOpportunities() {
   } catch (e) {
     throw new Error('Feed unreachable — is the n8n workflow active with a Supabase credential attached?')
   }
-  if (!res.ok) throw new Error(`Feed returned HTTP ${res.status}`)
+  if (!res.ok) {
+    // In prod, 404 on the same-origin /feed means the host proxy/rewrite is missing.
+    if (USE_PROXY && res.status === 404) {
+      throw new Error('Feed returned HTTP 404 — the /feed proxy is missing on the host. Add an Amplify rewrite: /feed → the webhook URL (200 rewrite).')
+    }
+    throw new Error(`Feed returned HTTP ${res.status}`)
+  }
 
   const text = await res.text()
   if (!text || !text.trim()) {
